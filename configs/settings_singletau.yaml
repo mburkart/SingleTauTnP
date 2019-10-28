@@ -1,0 +1,139 @@
+---
+binning:
+    "2016":
+        "dm0":
+            pT: [80., 90., 100., 110., 120., 125., 130., 140., 150., 160., 180., 250., 315., 400., 1000]  # yamllint disable-line rule:line-length
+        "dm1":
+            pT: [80., 90., 100., 110., 120., 125., 130., 140., 150., 160., 180., 250., 315., 400., 1000]  # yamllint disable-line rule:line-length
+        "dm10":
+            pT: [80., 100., 110., 120., 130., 140., 155., 180., 250., 315., 400., 1000]  # yamllint disable-line rule:line-length
+    "2017":
+        "dm0":
+            pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+        "dm1":
+            pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+        "dm10":
+            pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+    "2018":
+        "dm0":
+            pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 210., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+        "dm1":
+            pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 210., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+        "dm10":
+            pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+
+mva_tau: &mva_tau
+    loose: "byLooseIsolationMVArun2017v2DBoldDMwLT2017"
+    medium: "byMediumIsolationMVArun2017v2DBoldDMwLT2017"
+    tight: "byTightIsolationMVArun2017v2DBoldDMwLT2017"
+    vtight: "byVTightIsolationMVArun2017v2DBoldDMwLT2017"
+    vvtight: "byVVTightIsolationMVArun2017v2DBoldDMwLT2017"
+
+deep_tau: &deep_tau
+    loose: "byLooseDeepTau2017v2VSjet"
+    medium: "byMediumDeepTau2017v2VSjet"
+    tight: "byTightDeepTau2017v2VSjet"
+    vtight: "byVTightDeepTau2017v2VSjet"
+    vvtight: "byVVTightDeepTau2017v2VSjet"
+
+tau_wps: *mva_tau
+
+genTau:
+    MC:
+        MuTauSelection:
+            files: ".*(SUSY|ZprimeToTauTau).*"
+            selection:
+                # - "decayModeFinding"
+                - "tauTrkPt > 50."
+                - "abs(tauEta) < 2.1"
+                - "againstElectronVLooseMVA6"
+                - "againstMuonTight3"
+                - "tau_genindex == 5"
+                - "isMatched"
+                - "mT < 30."
+                - "isOS"
+            trg_name:
+                "2016": "((tauTriggerBits >> 4) & 1)==1"
+                "2017": "((tauTriggerBits >> 16) & 1)==1"
+                "2018": "((tauTriggerBits >> 16) & 1)==1"
+eFakes:
+    MC:
+        EESelection:
+            files: ".*(EG|EE).*"
+            selection:
+                # - "decayModeFinding"
+                - "tauTrkPt > 50."
+                - "abs(tauEta) < 2.1"
+                - "tauAgainstMuonTight3"
+                - "eleTagPt > 40."
+                - "isOS"
+                - "isProbeHLTmatched"
+            trg_name:
+                "2016": "((eleProbeTriggerBits >> 0)&1)==1"
+                "2017": "((eleProbeTriggerBits >> 0)&1)==1"
+                "2018": "((eleProbeTriggerBits >> 0)&1)==1"
+    DATA:
+        EESelection:
+            files: ".*(Electron|EGamma).*"
+            # files: ".*DYJets.*" # TODO: adapt to exclude EGamma Files
+            selection:
+                # - "decayModeFinding"
+                - "tauTrkPt > 50."
+                - "abs(tauEta) < 2.1"
+                - "tauAgainstMuonTight3"
+                - "eleTagPt > 40."
+            trg_name:
+                "2016": "((eleProbeTriggerBits >> 0)&1)==1"
+                "2017": "((eleProbeTriggerBits >> 0)&1)==1"
+                "2018": "((eleProbeTriggerBits >> 0)&1)==1"
+jetFakes:
+    MC:
+        MuTauSelection:
+            files: ".*(DYJetsToLLM50[e.]|WJets).*"
+            selection:
+                # - "decayModeFinding"
+                - "tauTrkPt > 50."
+                - "abs(tauEta) < 2.1"
+                - "againstElectronVLooseMVA6"
+                - "againstMuonTight3"
+                - "isMatched"
+                - "mT > 30."
+            trg_name:
+                "2016": "((tauTriggerBits >> 4) & 1)==1"
+                "2017": "((tauTriggerBits >> 16) & 1)==1"
+                "2018": "((tauTriggerBits >> 16) & 1)==1"
+        QCDSelection:
+            files: ".*QCD.*"
+            selection:
+                # - "decayModeFinding"
+                - "tauTrkPt > 50."
+                - "abs(tauEta) < 2.1"
+            trg_name:
+                "2016": "((tauTriggerBits >> 0)&1)==1"
+                "2017": "((tauTriggerBits >> 0)&1)==1"
+                "2018": "((tauTriggerBits >> 0)&1)==1"
+    DATA:
+        MuTauSelection:
+            files: ".*Muon.*"
+            selection:
+                # - "decayModeFinding"
+                - "tauTrkPt > 50."
+                - "abs(tauEta) < 2.1"
+                - "againstElectronVLooseMVA6"
+                - "againstMuonTight3"
+                - "isMatched"
+                - "mT > 30."
+            trg_name:
+                "2016": "((tauTriggerBits >> 4) & 1)==1"
+                "2017": "((tauTriggerBits >> 16) & 1)==1"
+                "2018": "((tauTriggerBits >> 16) & 1)==1"
+        QCDSelection:
+            files: ".*Jet.*"
+            selection:
+                # - "decayModeFinding"
+                - "tauTrkPt > 50."
+                - "abs(tauEta) < 2.1"
+            trg_name:
+                "2016": "((tauTriggerBits >> 0)&1)==1"
+                "2017": "((tauTriggerBits >> 0)&1)==1"
+                "2018": "((tauTriggerBits >> 0)&1)==1"

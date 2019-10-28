@@ -1,0 +1,68 @@
+---
+plots:
+    1:
+        Name: "{wp}MVAv2_{dm}_eFakes_MC"
+        Legend: "MC e #rightarrow #tau_{h}"
+        MarkerColor: 419
+        MarkerStyle: 22
+        LineColor: 419
+        LineStyle: 1
+        drawOption: "3lp"
+        FillColor: "tGreen"
+        FillStyle: 1001
+        LegendOptions: "flp"
+    3:
+        Name: "{wp}MVAv2_{dm}_jetFakes_MC"
+        Legend: "MC jet #rightarrow #tau_{h}"
+        MarkerColor: 602
+        MarkerStyle: 21
+        LineColor: 602
+        LineStyle: 1
+        drawOption: "3lp"
+        FillColor: "tBlue"
+        FillStyle: 1001
+        LegendOptions: "flp"
+    5:
+        Name: "{wp}MVAv2_{dm}_genTau_MC"
+        Legend: "MC real #tau_{h}"
+        MarkerColor: 634
+        MarkerStyle: 20
+        LineColor: 634
+        LineStyle: 1
+        drawOption: "3lp"
+        FillColor: "tRed"
+        FillStyle: 1001
+        LegendOptions: "flp"
+    4:
+        Name: "{wp}MVAv2_{dm}_jetFakes_DATA"
+        Legend: "2017 data jet #rightarrow #tau_{h} enriched"
+        MarkerColor: 600
+        MarkerStyle: 21
+        LineColor: 600
+        LineStyle: 1
+        drawOption: "pl"
+        FillColor: "tOrange"
+        FillStyle: 1001
+        LegendOptions: "lep"
+    2:
+        Name: "{wp}MVAv2_{dm}_eFakes_DATA"
+        Legend: "2017 data e #rightarrow #tau_{h} enriched"
+        MarkerColor: 417
+        MarkerStyle: 22
+        LineColor: 417
+        LineStyle: 1
+        drawOption: "pl"
+        FillColor: "tOrange"
+        FillStyle: 1001
+        LegendOptions: "lep"
+
+"2016":
+    x_range: [80, 1000]
+    lumi: "36.7 fb^{-1} "
+"2017":
+    x_range: [80, 1000]
+    lumi: "41.5 fb^{-1} "
+"2018":
+    x_range: [80, 1000]
+    lumi: "59.7 fb^{-1} "
+...
