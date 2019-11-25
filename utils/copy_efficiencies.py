@@ -17,6 +17,8 @@ def parse_args():
                         help="Input root file")
     parser.add_argument("-o", "--output",
                         help="Output root file")
+    parser.add_argument("--mva", action="store_true",
+                        help="Use MVA Tau ID algorithm.")
     return parser.parse_args()
 
 
@@ -55,12 +57,13 @@ def copy_histogram(key, infile):
 
 
 def main():
-    root.gROOT.SetBatch(0)
+    root.gROOT.SetBatch()
     args = parse_args()
     inp_file = root.TFile(args.in_filename, "read")
     keys = [key.GetName() for key in inp_file.GetListOfKeys()]
     out_file = root.TFile(args.output, "recreate")
-    for key in get_matches(keys, "^graph_.*MVAv2.*genTau_(MC|DATA)"):
+    tauid = "MVAv2" if args.mva else "DeepTau"
+    for key in get_matches(keys, "^graph_.*{}.*genTau_(MC|DATA)".format(tauid)):
         copy_histogram(key, inp_file)
         # if "DATA" in key:
         #     build_histogram(key, inp_file)
