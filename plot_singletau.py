@@ -12,11 +12,12 @@ ROOT.gErrorIgnoreLevel = ROOT.kError
 ROOT.gROOT.SetBatch()
 
 
-decayModes = ["dm0", "dm1", "dm10"]
+decayModes = ["dm0", "dm1", "dm10", "dm11"]
 dm_dict = {"dmCmb": "#bf{CMS} #it{Preliminary}",
            "dm0": "1 prong",
            "dm1": "1 prong + #pi^{0}'s",
-           "dm10": "3 prong"}
+           "dm10": "3 prong",
+           "dm11": "3 prong + #pi^{0}"}
 
 # ROOT FILE CONTAINING THE DATA
 col_dict = {
@@ -38,6 +39,8 @@ def parse_args():
                         help="Era.")
     parser.add_argument("-w", "--working-point", type=str,
                         help="TauID working point.")
+    parser.add_argument("--mva", action="store_true",
+                        help="Use efficiencies based on MVA Tau ID algorithm.")
     return parser.parse_args()
 
 
@@ -45,6 +48,9 @@ def main(args):
 
     yml_dict = yaml.load(open("configs/singletau_plot_config.yaml", "r"))
     plot_dict = yml_dict["plots"]
+    if not args.mva:
+        for sub_dict in plot_dict.itervalues():
+           sub_dict["Name"] = sub_dict["Name"].replace("MVAv2", "DeepTau")
 
     infile = ROOT.TFile.Open(args.input, "read")
 
@@ -57,7 +63,7 @@ def main(args):
         for plot in sorted(plot_dict.keys()):
             if dm == "dm0" and "jetFakes" in plot_dict[plot]["Name"]:
                 continue
-            if ((dm == "dm1" or dm == "dm10")
+            if ((dm == "dm1" or dm == "dm10" or dm == "dm11")
                     and "eFakes" in plot_dict[plot]["Name"]):
                 continue
             print "graph_" + plot_dict[plot]["Name"].format(
@@ -72,7 +78,7 @@ def main(args):
             turnons.append(TurnOnPlot.TurnOn(**plot_dict[plot]))
         plots.append(TurnOnPlot.TurnOnPlot(TriggerName=dm + "genuine fake",
                      cms=dm_dict[dm]))
-        plots[-1].name = args.era + dm
+        plots[-1].name = "_".join([args.era, args.working_point, dm])
         plots[-1].xRange = yml_dict[args.era]["x_range"]
         # plots[-1].legendPosition = (0.6,0.2,0.9,0.4)
         plots[-1].legendPosition = (0.44, 0.15, 0.94, 0.33)

@@ -18,6 +18,7 @@ DM_DICT = {
         "dm0": "1 prong",
         "dm1": "1 prong + #pi^{0}'s",
         "dm10": "3 prong",
+        "dm11": "3 prong + #pi^{0}",
         }
 
 OPT_DICT = {
@@ -44,6 +45,8 @@ def parse_arguments():
                         help="Tau ID working point.")
     parser.add_argument("-e", "--era", choices=[2016, 2017, 2018], type=int,
                         help="Era used for plot labelling.")
+    parser.add_argument("--mva", action="store_true",
+                        help="Efficiency based on MVA Tau ID.")
     args = parser.parse_args()
     return args
 
@@ -257,7 +260,7 @@ def plot_with_ratio(histos, plot_dicts, canvas_name,
     pad.SetTopMargin(pad.GetTopMargin()*scale_h_pad)
     ratio_pad.SetBottomMargin(ratio_pad.GetBottomMargin()*scale_h_ratio)
 
-    hDummy = root.TH1F("hDummy_"+canvas_name, canvas_name, 1, 190, 1000)
+    hDummy = root.TH1F("hDummy_"+canvas_name, canvas_name, 1, *OPT_DICT[args.era]["x_range"])
     y_low, y_up = y_axis_range
     hDummy.SetAxisRange(y_low, y_up, "Y")
     hDummy.GetYaxis().SetTitleSize(
@@ -281,7 +284,7 @@ def plot_with_ratio(histos, plot_dicts, canvas_name,
     legend.SetBorderSize(0)
     legend.SetFillStyle(1001)
     for histo, plot_dict in zip(histos, plot_dicts):
-        histo.GetXaxis().SetRangeUser(190, 1000)
+        histo.GetXaxis().SetRangeUser(*OPT_DICT[args.era]["x_range"])
         histo.SetMarkerStyle(plot_dict["markerStyle"])
         histo.SetMarkerColor(plot_dict["markerColor"])
         histo.SetLineColor(plot_dict["markerColor"])
@@ -335,7 +338,7 @@ def plot_with_ratio(histos, plot_dicts, canvas_name,
     ratio_pad.cd()
     hRatioDummy = root.TH1F("hRatioDummy_"+canvas_name, canvas_name,
                             1, *OPT_DICT[args.era]["x_range"])
-    hRatioDummy.SetAxisRange(0.75, 1.15, "Y")
+    hRatioDummy.SetAxisRange(0.65, 1.25, "Y")
     hRatioDummy.SetXTitle("Offline Tau p_{T} [GeV]")
     # hRatioDummy.SetYTitle("Test")
     hRatioDummy.SetYTitle("Scale factor")
@@ -416,15 +419,15 @@ def create_function_and_shift(h_num, h_denom):
     return h_function_up, h_function_down, h_function
 
 
-def shift_plots(genTau_mc, fakeTau_mc, fakeTau_data, dm):
+def shift_plots(genTau_mc, fakeTau_mc, fakeTau_data, dm, wp):
     plot(create_function_and_shift(fakeTau_data, fakeTau_mc),
          get_plotting_dicts_shifts(),
-         str(args.era) + "_" + dm+"_scalefactor_shift",
+         "_".join([str(args.era), wp, dm, "scalefactor_shift"]),
          y_axis_range=(0.75, 1.2), y_title="Scale factor")
     plot(create_function_and_shift(genTau_mc, fakeTau_mc),
          get_plotting_dicts_shifts(),
-         str(args.era) + "_" + dm+"_transferfunction_shift",
-         y_axis_range=(0.75, 1.2), y_title="Transfer function")
+         "_".join([str(args.era), wp, dm, "transferfunction_shift"]),
+         y_axis_range=(0.75, 1.3), y_title="Transfer function")
     return
 
 
@@ -457,33 +460,38 @@ def get_sqrt(hist):
 
 
 def main(args):
-    root.gROOT.SetBatch(1)
+    root.gROOT.SetBatch()
     turnons = []
     setPlotStyle()
     infile = root.TFile(args.input, "update")
     # "inclusiveDM" not yet working because of issues calculating the error
     # for the mc turnon in one bin
-    dms = ["dm0", "dm1", "dm10"]
+    if args.mva:
+        dms = ["dm0", "dm1", "dm10"]
+        tauid = "MVAv2"
+    else:
+        dms = ["dm0", "dm1", "dm10", "dm11"]
+        tauid = "DeepTau"
     # dms = ["dm10"]
     for dm in dms:
         gen_mc_turnon = infile.Get(
-                "graph_{wp}MVAv2_{dm}_genTau_MC".format(wp=args.wp, dm=dm))
+                "graph_{wp}{id}_{dm}_genTau_MC".format(wp=args.wp, dm=dm, id=tauid))
         if dm == "dm0":
-            fake_sf = infile.Get("SF_{dm}_eFakes".format(dm=dm))
+            fake_sf = infile.Get("SF_{wp}{id}_{dm}_eFakes".format(dm=dm, wp=args.wp, id=tauid))
             fake_data = infile.Get(
-                    "graph_{wp}MVAv2_{dm}_eFakes_DATA".format(
-                        wp=args.wp, dm=dm))
+                    "graph_{wp}{id}_{dm}_eFakes_DATA".format(
+                        wp=args.wp, dm=dm, id=tauid))
             fake_mc = infile.Get(
-                    "graph_{wp}MVAv2_{dm}_eFakes_MC".format(
-                        wp=args.wp, dm=dm))
+                    "graph_{wp}{id}_{dm}_eFakes_MC".format(
+                        wp=args.wp, dm=dm, id=tauid))
         else:
-            fake_sf = infile.Get("SF_{dm}_jetFakes".format(dm=dm))
+            fake_sf = infile.Get("SF_{wp}{id}_{dm}_jetFakes".format(dm=dm, wp=args.wp, id=tauid))
             fake_data = infile.Get(
-                    "graph_{wp}MVAv2_{dm}_jetFakes_DATA".format(
-                        wp=args.wp, dm=dm))
+                    "graph_{wp}{id}_{dm}_jetFakes_DATA".format(
+                        wp=args.wp, dm=dm, id=tauid))
             fake_mc = infile.Get(
-                    "graph_{wp}MVAv2_{dm}_jetFakes_MC".format(
-                        wp=args.wp, dm=dm))
+                    "graph_{wp}{id}_{dm}_jetFakes_MC".format(
+                        wp=args.wp, dm=dm, id=tauid))
         gen_data_turnon = derive_data_efficiency(gen_mc_turnon, fake_sf)
 
         # Get the latest version of the uncertainties using error propagation.
@@ -502,33 +510,33 @@ def main(args):
         plot_with_ratio([gen_data_up, gen_data_down,
                         gen_mc_turnon, gen_data_turnon],
                         get_plotting_dicts(),
-                        str(args.era) + "_" + dm+"_latestUncertainty",
+                        "_".join([str(args.era), args.wp, dm, "Uncertainty"]),
                         y_axis_range=(0., 1.1),
                         cmstext=DM_DICT[dm])
 
         turnons.extend([gen_mc_turnon, fake_mc, fake_data])
-        shift_plots(gen_mc_turnon, fake_mc, fake_data, dm)
+        shift_plots(gen_mc_turnon, fake_mc, fake_data, dm, tauid+args.wp)
         # Write back shifts to efficiency file.
         gen_data_turnon.SetName(
-                "graph_{wp}MVAv2_{dm}_genTau_DATA".format(wp=args.wp, dm=dm))
+                "graph_{wp}{id}_{dm}_genTau_DATA".format(wp=args.wp, dm=dm, id=tauid))
         gen_data_turnon.SetTitle(
-                "graph_{wp}MVAv2_{dm}_genTau_DATA".format(wp=args.wp, dm=dm))
+                "graph_{wp}{id}_{dm}_genTau_DATA".format(wp=args.wp, dm=dm, id=tauid))
         gen_data_turnon.Write("", root.TObject.kOverwrite)
 
         gen_data_up.SetName(
-                "graph_{wp}MVAv2_{dm}_genTau_DATA_upShift".format(
-                    wp=args.wp, dm=dm))
+                "graph_{wp}{id}_{dm}_genTau_DATA_upShift".format(
+                    wp=args.wp, dm=dm, id=tauid))
         gen_data_up.SetTitle(
-                "graph_{wp}MVAv2_{dm}_genTau_DATA_upShift".format(
-                    wp=args.wp, dm=dm))
+                "graph_{wp}{id}_{dm}_genTau_DATA_upShift".format(
+                    wp=args.wp, dm=dm, id=tauid))
         gen_data_up.Write("", root.TObject.kOverwrite)
 
         gen_data_down.SetName(
-                "graph_{wp}MVAv2_{dm}_genTau_DATA_downShift".format(
-                    wp=args.wp, dm=dm))
+                "graph_{wp}{id}_{dm}_genTau_DATA_downShift".format(
+                    wp=args.wp, dm=dm, id=tauid))
         gen_data_down.SetTitle(
-                "graph_{wp}MVAv2_{dm}_genTau_DATA_downShift".format(
-                    wp=args.wp, dm=dm))
+                "graph_{wp}{id}_{dm}_genTau_DATA_downShift".format(
+                    wp=args.wp, dm=dm, id=tauid))
         gen_data_down.Write("", root.TObject.kOverwrite)
 
     # test_fitting(infile)
