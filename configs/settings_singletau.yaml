@@ -1,28 +1,108 @@
 ---
+binning_2016: &bin_2016
+    "dm0":
+        pT: [80., 90., 100., 110., 120., 125., 130., 140., 160., 180., 230., 295., 375., 1000]  # yamllint disable-line rule:line-length
+    "dm1":
+        pT: [80., 90., 100., 110., 120., 125., 130., 140., 150., 160., 180., 250., 315., 400., 1000]  # yamllint disable-line rule:line-length
+    "dm10":
+        pT: [80., 100., 110., 120., 130., 140., 155., 180., 250., 315., 400., 1000]  # yamllint disable-line rule:line-length
+    "dm11":
+        pT: [80., 105., 120., 130., 140., 165., 200., 250., 315., 400., 1000]  # yamllint disable-line rule:line-length
+
+binning_2017: &bin_2017
+    "dm0":
+        pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+    "dm1":
+        pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+    "dm10":
+        pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+    "dm11":
+        pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+
+binning_2018: &bin_2018
+    "dm0":
+        pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+    "dm1":
+        pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 210., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+    "dm10":
+        pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+    "dm11":
+        pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+
 binning:
     "2016":
-        "dm0":
-            pT: [80., 90., 100., 110., 120., 125., 130., 140., 150., 160., 180., 250., 315., 400., 1000]  # yamllint disable-line rule:line-length
-        "dm1":
-            pT: [80., 90., 100., 110., 120., 125., 130., 140., 150., 160., 180., 250., 315., 400., 1000]  # yamllint disable-line rule:line-length
-        "dm10":
-            pT: [80., 100., 110., 120., 130., 140., 155., 180., 250., 315., 400., 1000]  # yamllint disable-line rule:line-length
+        <<: *bin_2016
     "2017":
-        "dm0":
-            pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
-        "dm1":
-            pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
-        "dm10":
-            pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+        <<: *bin_2017
     "2018":
-        "dm0":
-            pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 210., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
-        "dm1":
-            pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 210., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
-        "dm10":
-            pT: [80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+        <<: *bin_2018
+
+binning_per_wp:
+    "2016":
+        "vvvloose":
+            <<: *bin_2016
+            dm11: 
+                pT: [80., 120., 130., 140., 165., 200., 250., 315., 400., 1000]  # yamllint disable-line rule:line-length
+        "vvloose":
+            <<: *bin_2016
+        "vloose":
+            <<: *bin_2016
+        "loose":
+            <<: *bin_2016
+        "medium":
+            <<: *bin_2016
+        "tight":
+            <<: *bin_2016
+        "vtight":
+            <<: *bin_2016
+        "vvtight":
+            <<: *bin_2016
+    "2017":
+        "vvvloose":
+            <<: *bin_2017
+        "vvloose":
+            <<: *bin_2017
+        "vloose":
+            <<: *bin_2017
+        "loose":
+            <<: *bin_2017
+            dm0:
+                pT: [80., 95., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+        "medium":
+            <<: *bin_2017
+        "tight":
+            <<: *bin_2017
+        "vtight":
+            <<: *bin_2017
+        "vvtight":
+            <<: *bin_2017
+    "2018":
+        "vvvloose":
+            <<: *bin_2018
+            dm11:
+                pT: [80., 90., 105., 120., 130., 140., 150., 160., 170., 180., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+        "vvloose":
+            <<: *bin_2018
+            dm1:
+                pT: [80., 95., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 210., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+        "vloose":
+            <<: *bin_2018
+            dm0:
+                pT: [80., 95., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 220., 260., 315., 400., 1000]  # yamllint disable-line rule:line-length
+        "loose":
+            <<: *bin_2018
+        "medium":
+            <<: *bin_2018
+        "tight":
+            <<: *bin_2018
+        "vtight":
+            <<: *bin_2018
+        "vvtight":
+            <<: *bin_2018
+    
 
 mva_tau: &mva_tau
+    vloose: "byVLooseIsolationMVArun2017v2DBoldDMwLT2017"
     loose: "byLooseIsolationMVArun2017v2DBoldDMwLT2017"
     medium: "byMediumIsolationMVArun2017v2DBoldDMwLT2017"
     tight: "byTightIsolationMVArun2017v2DBoldDMwLT2017"
@@ -30,24 +110,31 @@ mva_tau: &mva_tau
     vvtight: "byVVTightIsolationMVArun2017v2DBoldDMwLT2017"
 
 deep_tau: &deep_tau
-    loose: "byLooseDeepTau2017v2VSjet"
-    medium: "byMediumDeepTau2017v2VSjet"
-    tight: "byTightDeepTau2017v2VSjet"
-    vtight: "byVTightDeepTau2017v2VSjet"
-    vvtight: "byVVTightDeepTau2017v2VSjet"
+    vvvloose: "byVVVLooseDeepTau2017v2p1VSjet"
+    vvloose: "byVVLooseDeepTau2017v2p1VSjet"
+    vloose: "byVLooseDeepTau2017v2p1VSjet"
+    loose: "byLooseDeepTau2017v2p1VSjet"
+    medium: "byMediumDeepTau2017v2p1VSjet"
+    tight: "byTightDeepTau2017v2p1VSjet"
+    vtight: "byVTightDeepTau2017v2p1VSjet"
+    vvtight: "byVVTightDeepTau2017v2p1VSjet"
 
-tau_wps: *mva_tau
+tau_wps:
+    DeepTau: *deep_tau
+    MVATau: *mva_tau
 
 genTau:
     MC:
         MuTauSelection:
             files: ".*(SUSY|ZprimeToTauTau).*"
             selection:
-                # - "decayModeFinding"
+                - "decayModeFindingNewDMs"
                 - "tauTrkPt > 50."
                 - "abs(tauEta) < 2.1"
-                - "againstElectronVLooseMVA6"
-                - "againstMuonTight3"
+                # - "againstElectronVLooseMVA6"
+                # - "againstMuonTight3"
+                - "byTightDeepTau2017v2p1VSmu"
+                - "byVVLooseDeepTau2017v2p1VSe"
                 - "tau_genindex == 5"
                 - "isMatched"
                 - "mT < 30."
@@ -61,10 +148,11 @@ eFakes:
         EESelection:
             files: ".*(EG|EE).*"
             selection:
-                # - "decayModeFinding"
+                - "decayModeFindingNewDMs"
                 - "tauTrkPt > 50."
                 - "abs(tauEta) < 2.1"
-                - "tauAgainstMuonTight3"
+                # - "tauAgainstMuonTight3"
+                - "byVLooseDeepTau2017v2p1VSmu"
                 - "eleTagPt > 40."
                 - "isOS"
                 - "isProbeHLTmatched"
@@ -75,13 +163,15 @@ eFakes:
     DATA:
         EESelection:
             files: ".*(Electron|EGamma).*"
-            # files: ".*DYJets.*" # TODO: adapt to exclude EGamma Files
             selection:
-                # - "decayModeFinding"
+                - "decayModeFindingNewDMs"
                 - "tauTrkPt > 50."
                 - "abs(tauEta) < 2.1"
-                - "tauAgainstMuonTight3"
+                # - "tauAgainstMuonTight3"
+                - "byVLooseDeepTau2017v2p1VSmu"
                 - "eleTagPt > 40."
+                - "isOS"
+                - "isProbeHLTmatched"
             trg_name:
                 "2016": "((eleProbeTriggerBits >> 0)&1)==1"
                 "2017": "((eleProbeTriggerBits >> 0)&1)==1"
@@ -91,11 +181,14 @@ jetFakes:
         MuTauSelection:
             files: ".*(DYJetsToLLM50[e.]|WJets).*"
             selection:
-                # - "decayModeFinding"
+                - "decayModeFindingNewDMs"
                 - "tauTrkPt > 50."
                 - "abs(tauEta) < 2.1"
-                - "againstElectronVLooseMVA6"
-                - "againstMuonTight3"
+                # - "againstElectronVLooseMVA6"
+                # - "againstMuonTight3"
+                - "byTightDeepTau2017v2p1VSmu"
+                - "byVVLooseDeepTau2017v2p1VSe"
+                - "tau_genindex == -1"
                 - "isMatched"
                 - "mT > 30."
             trg_name:
@@ -105,9 +198,12 @@ jetFakes:
         QCDSelection:
             files: ".*QCD.*"
             selection:
-                # - "decayModeFinding"
+                # - "decayModeFindingsNewDMs"
                 - "tauTrkPt > 50."
                 - "abs(tauEta) < 2.1"
+                - "byVLooseDeepTau2017v2p1VSmu"
+                - "byVVLooseDeepTau2017v2p1VSe"
+                - "tau_genindex == -1"
             trg_name:
                 "2016": "((tauTriggerBits >> 0)&1)==1"
                 "2017": "((tauTriggerBits >> 0)&1)==1"
@@ -116,11 +212,13 @@ jetFakes:
         MuTauSelection:
             files: ".*Muon.*"
             selection:
-                # - "decayModeFinding"
+                - "decayModeFindingNewDMs"
                 - "tauTrkPt > 50."
                 - "abs(tauEta) < 2.1"
-                - "againstElectronVLooseMVA6"
-                - "againstMuonTight3"
+                # - "againstElectronVLooseMVA6"
+                # - "againstMuonTight3"
+                - "byTightDeepTau2017v2p1VSmu"
+                - "byVVLooseDeepTau2017v2p1VSe"
                 - "isMatched"
                 - "mT > 30."
             trg_name:
@@ -130,9 +228,11 @@ jetFakes:
         QCDSelection:
             files: ".*Jet.*"
             selection:
-                # - "decayModeFinding"
+                # - "decayModeFindingNewDMs"
                 - "tauTrkPt > 50."
                 - "abs(tauEta) < 2.1"
+                - "byVLooseDeepTau2017v2p1VSmu"
+                - "byVVLooseDeepTau2017v2p1VSe"
             trg_name:
                 "2016": "((tauTriggerBits >> 0)&1)==1"
                 "2017": "((tauTriggerBits >> 0)&1)==1"

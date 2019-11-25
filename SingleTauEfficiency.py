@@ -10,7 +10,7 @@ import numpy as np
 
 
 import ROOT as root
-root.gROOT.SetBatch(1)
+root.gROOT.SetBatch()
 root.ROOT.EnableImplicitMT(10)
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ class SingleTauEfficiency(object):
                }
 
     def __init__(self, era, tauid_wps, input_dir, tau_type, sample_type,
-                 save_hists=False):
+                 save_hists=False, use_mva=False, bin_by_wp=False):
         self._era = era
         self.tauid_wps = tauid_wps
         self._inp_dir = input_dir
@@ -39,11 +39,13 @@ class SingleTauEfficiency(object):
         self._sample_type = sample_type
         self._config = yaml.load(open("configs/settings_singletau.yaml", "r"))
         self._mod_th1d_pT = {}
-        self._create_histogram_model()
         self._hists = []
         self._directory = self.era_map[self.era][self._sample_type]
         self._dataframes = []
         self._save_hists = save_hists
+        self._bin_by_wp = bin_by_wp
+        self._use_mva = use_mva
+        self._create_histogram_model()
         root.TH1.SetDefaultSumw2()
 
     @property
@@ -62,11 +64,20 @@ class SingleTauEfficiency(object):
         self._tauid_wps = wp_list
 
     def _create_histogram_model(self):
-        binning = self._config["binning"][self.era]
-        for dm, bins in binning.iteritems():
-            self._mod_th1d_pT[dm] = root.RDF.TH1DModel(
-                    "mod_th1d_pT", "mod_th1d_pT",
-                    len(bins["pT"])-1, np.array(bins["pT"], dtype=float))
+        if self._bin_by_wp:
+            binning = self._config["binning_per_wp"][self.era]
+            for wp, bins_dict in binning.iteritems():
+                self._mod_th1d_pT[wp] = {}
+                for dm, bins in bins_dict.iteritems():
+                    self._mod_th1d_pT[wp][dm] = root.RDF.TH1DModel(
+                            "mod_th1d_pT", "mod_th1d_pT",
+                            len(bins["pT"])-1, np.array(bins["pT"], dtype=float))
+        else:
+            binning = self._config["binning"][self.era]
+            for dm, bins in binning.iteritems():
+                self._mod_th1d_pT[dm] = root.RDF.TH1DModel(
+                        "mod_th1d_pT", "mod_th1d_pT",
+                        len(bins["pT"])-1, np.array(bins["pT"], dtype=float))
         return
 
     def _build_dataframe(self):
@@ -82,23 +93,67 @@ class SingleTauEfficiency(object):
                         "(" + ")&&(".join(sel_config["selection"]) + ")"))
             for idwp in self.tauid_wps:
                 hist_dict[idwp] = {}
-                for dm in ["0", "1", "10"]:
-                    hist_dict[idwp]["dm"+dm] = {}
-                    hist_dict[idwp]["dm"+dm]["total"] = self._dataframes[-1] \
-                        .Filter(self._config["tau_wps"][idwp]
-                                if sel == "MuTauSelection"
-                                else "tauBy" + idwp.capitalize()
-                                + "IsolationMVArun2017v2DBoldDMwLT2017") \
-                        .Filter("tauDM == {}".format(dm)) \
-                        .Histo1D(self._mod_th1d_pT["dm"+dm], "tauPt")
-                    hist_dict[idwp]["dm"+dm]["pass"] = self._dataframes[-1] \
-                        .Filter(self._config["tau_wps"][idwp]
-                                if sel == "MuTauSelection"
-                                else "tauBy" + idwp.capitalize()
-                                + "IsolationMVArun2017v2DBoldDMwLT2017") \
-                        .Filter("tauDM == {}".format(dm)) \
-                        .Filter(sel_config["trg_name"][self.era]) \
-                        .Histo1D(self._mod_th1d_pT["dm"+dm], "tauPt")
+                if self._use_mva:
+                    for dm in ["0", "1", "10"]:
+                        if self._bin_by_wp:
+                            hist_dict[idwp]["dm"+dm] = {}
+                            hist_dict[idwp]["dm"+dm]["total"] = self._dataframes[-1] \
+                                .Filter(self._config["tau_wps"]["MVATau"][idwp]
+                                    if sel == "MuTauSelection"
+                                    else "tauBy" + idwp.capitalize()
+                                    + "IsolationMVArun2017v2DBoldDMwLT2017") \
+                                .Filter("tauDM == {}".format(dm)) \
+                                .Histo1D(self._mod_th1d_pT[idwp]["dm"+dm], "tauPt")
+                            hist_dict[idwp]["dm"+dm]["pass"] = self._dataframes[-1] \
+                                .Filter(self._config["tau_wps"]["MVATau"][idwp]
+                                    if sel == "MuTauSelection"
+                                    else "tauBy" + idwp.capitalize()
+                                    + "IsolationMVArun2017v2DBoldDMwLT2017") \
+                                .Filter("tauDM == {}".format(dm)) \
+                                .Filter(sel_config["trg_name"][self.era]) \
+                                .Histo1D(self._mod_th1d_pT[idwp]["dm"+dm], "tauPt")
+                        else:
+                            hist_dict[idwp]["dm"+dm] = {}
+                            hist_dict[idwp]["dm"+dm]["total"] = self._dataframes[-1] \
+                                .Filter(self._config["tau_wps"]["MVATau"][idwp]
+                                    if sel == "MuTauSelection"
+                                    else "tauBy" + idwp.capitalize()
+                                    + "IsolationMVArun2017v2DBoldDMwLT2017") \
+                                .Filter("tauDM == {}".format(dm)) \
+                                .Histo1D(self._mod_th1d_pT["dm"+dm], "tauPt")
+                            hist_dict[idwp]["dm"+dm]["pass"] = self._dataframes[-1] \
+                                .Filter(self._config["tau_wps"]["MVATau"][idwp]
+                                    if sel == "MuTauSelection"
+                                    else "tauBy" + idwp.capitalize()
+                                    + "IsolationMVArun2017v2DBoldDMwLT2017") \
+                                .Filter("tauDM == {}".format(dm)) \
+                                .Filter(sel_config["trg_name"][self.era]) \
+                                .Histo1D(self._mod_th1d_pT["dm"+dm], "tauPt")
+                else:
+                    if self._bin_by_wp:
+                        for dm in ["0", "1", "10", "11"]:
+                            hist_dict[idwp]["dm"+dm] = {}
+                            hist_dict[idwp]["dm"+dm]["total"] = self._dataframes[-1] \
+                                .Filter(self._config["tau_wps"]["DeepTau"][idwp]) \
+                                .Filter("tauDM == {}".format(dm)) \
+                                .Histo1D(self._mod_th1d_pT[idwp]["dm"+dm], "tauPt")
+                            hist_dict[idwp]["dm"+dm]["pass"] = self._dataframes[-1] \
+                                .Filter(self._config["tau_wps"]["DeepTau"][idwp]) \
+                                .Filter("tauDM == {}".format(dm)) \
+                                .Filter(sel_config["trg_name"][self.era]) \
+                                .Histo1D(self._mod_th1d_pT[idwp]["dm"+dm], "tauPt")
+                    else:
+                        for dm in ["0", "1", "10", "11"]:
+                            hist_dict[idwp]["dm"+dm] = {}
+                            hist_dict[idwp]["dm"+dm]["total"] = self._dataframes[-1] \
+                                .Filter(self._config["tau_wps"]["DeepTau"][idwp]) \
+                                .Filter("tauDM == {}".format(dm)) \
+                                .Histo1D(self._mod_th1d_pT["dm"+dm], "tauPt")
+                            hist_dict[idwp]["dm"+dm]["pass"] = self._dataframes[-1] \
+                                .Filter(self._config["tau_wps"]["DeepTau"][idwp]) \
+                                .Filter("tauDM == {}".format(dm)) \
+                                .Filter(sel_config["trg_name"][self.era]) \
+                                .Histo1D(self._mod_th1d_pT["dm"+dm], "tauPt")
             self._hists.append(hist_dict)
         return
 
@@ -164,7 +219,10 @@ class SingleTauEfficiency(object):
                     g_eff = root.RooHist(h_dict["pass"][0].GetValue(), h_fail,
                                          0, 1., root.RooAbsData.Poisson, 1.,
                                          root.kTRUE, 1.)
-                nm_temp = "{}_{}MVAv2_{}_{}_{}"
+                if self._use_mva:
+                    nm_temp = "{}_{}MVAv2_{}_{}_{}"
+                else:
+                    nm_temp = "{}_{}DeepTau_{}_{}_{}"
                 form_opt = [wp, dm, self._tau_type, self._sample_type]
                 self._save_root_object(
                         h_eff, nm_temp.format("hist", *form_opt))
